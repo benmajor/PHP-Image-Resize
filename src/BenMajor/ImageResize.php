@@ -878,6 +878,5 @@ class ImageResize
     {
         imagedestroy($this->input);
         imagedestroy($this->output);
-    }
-    
+    }    
 }
