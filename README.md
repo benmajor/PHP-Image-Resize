@@ -7,9 +7,10 @@ ImageResize is a simple PHP class that can be used to resize images on the fly u
 1. [Version History](#1-version-history)
 2. [Installation](#2-installation)
 3. [Getting Started](#3-getting-started)
-4. [Functions](#4-functions)
+4. [Method Reference](#4-method-reference)
 5. [Requirements](#5-requirements)
-6. [License](#6-license)
+6. [Bugs & Features](#6-bugs-features)
+7. [License](#7-license)
 
 ## 1. Version History:
 
@@ -26,13 +27,41 @@ Or simply download the PHP package from the `src/` directory in this repository.
 
 ## 3. Getting Started:
 
-## 4. Functions:
+To get started, call the constructor, and pass a path to a valid image to it:
+
+	<?php
+	
+	$image = new ImageResize('http://example.com/image.jpg');
+
+**Note:** In order to use a remote URL, your PHP configuration must have the `allow_url_fopen` directive enable. If this is disabled, a fatal error will be thrown from the constructor stating that the source image does not exist.
+
+Once you have created a new `ImageResize` object, it is possible to perform functions on the image (these functions are listed in Section 4). After applying functions and resize methods to the image, you are then able to output the generated image file to the browser, or force it to download to the user's computer by using the `output()` and `download()` methods respectively. 
+
+To learn more about the usage of the library, please see the `examples` directory in this repository.
+
+## 4. Method Reference:
+
+**Note: The order in which methods are called is generally irrelevent, but you should always call the `output(*)` or `download(*)` functions last in order to avoid unexpected behaviour.**
+
+The following is a list of the various methods that may be called on an `ImageResize` object. For more information and example usage, please see the examples posted in the `examples` directory of this repository.
+
+Please note that some methods only affect certain resize techniques. When this is the case, a note has been added to the method reference below.
+
+#### Resize mehtods:
+
+`resize( $width, $height )`:
+Forces 
+
 
 ## 5. Requirements:
 
 The library requires PHP >= 5.6 and the PHP GD extension to be installed and enabled on the target server.
 
-## 6. License:
+## 6. Bugs & Features:
+
+If you have spotted any bugs, or would like to request additional features from the library, please file an issue via the Issue Tracker on the project's Github page: [https://github.com/benmajor/PHP-Image-Resize/issues](https://github.com/benmajor/PHP-Image-Resize/issues).
+
+## 7. License:
 
 Licensed under the **MIT License**:
 
