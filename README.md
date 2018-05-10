@@ -67,7 +67,7 @@ Resizes and automatically crops the image to the specified dimensions. This is p
 Creates a canvas `$width` &times; `$height` pixels in size, and resizes the image proportionally to ensure the entire image fits onto the canvas and centers the resized image.
 *If `$height` is `null`, a square image will be generated, using `$width` for both the width and height of the output.*
 
---
+----
 
 #### Output methods:
 
@@ -95,7 +95,7 @@ Produces the necessary markup for an `<img />` element, and Base64 encodes the r
 + `$title`: string containing the value to be used in the `title` attribute of the generated element.<br />Default: `null`.
 + `$echo`: boolean indicating whether the tag should be echoed (output) as well as returned. Default: `true`.
 
---
+----
 
 #### Download methods:
 
@@ -114,6 +114,8 @@ Force the image to be downloaded by the browser as a PNG image.<br />
 `downloadGIF( $filename = null )`:<br />
 Force the image to be downloaded by the browser as a GIF image.<br />
 *If `$filename` is null, the original filename will be used, or pass a string to force a different filename in the download dialog. The extension is not required.*
+
+----
 
 #### Editing methods:
 
@@ -147,6 +149,8 @@ Sets the width of the border. `$width` should be an integer representing the pix
 `setBorderColor( $color )`:<br />
 Sets the color of the generated border. `$color` should be a string containing a hex value (e.g. `#000`).
 
+----
+
 #### Filter methods:
 
 In addition to resizing images, this library also offers basic editing and filter capabilities for the image. This reference shows all of the currently supported filter methods:
@@ -169,6 +173,8 @@ Increase or descrease the image's saturation. Since GD does not offer a built-in
 
 `colorize( $color )`:<br />
 Colorize the image using the specified `$color`. `$color` should be a string containing a valid hex color definition.
+
+----
 
 #### Get methods:
 
