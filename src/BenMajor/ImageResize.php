@@ -8,6 +8,7 @@ class ImageResize
     private $sourceWidth;
     private $sourceHeight;
     private $sourceMime;
+    private $targetName;
     
     private $outputWidth;
     private $outputHeight;
@@ -28,7 +29,7 @@ class ImageResize
     private $tmpDir;
     private $rename;
     
-    protected $supported = [ 'image/jpeg', 'image/gif', 'image/png', 'image/bmp' ];    
+    protected $supported = [ 'image/jpeg', 'image/gif', 'image/png' ];    
     
     function __construct( $image = null, $errorMode = 'json' )
     {
@@ -218,6 +219,30 @@ class ImageResize
     public function getBorderColor()
     {
         return $this->border->color;
+    }
+    
+    # Get the ouput width:
+    public function getOutputWidth()
+    {
+        return $this->outputWidth;
+    }
+    
+    # Get the output height:
+    public function getOutputHeight()
+    {
+        return $this->outputHeight;
+    }
+    
+    # Get the output name:
+    public function getOutputFilename()
+    {
+        return $this->targetName;
+    }
+    
+    # Get image attributes:
+    public function getImgTagAttributes()
+    {
+        return 'width="'.$this->getOutputWidth().'" height="'.$this->getOutputHeight().'"';
     }
     
     # START FILTER FUNCTIONS:
@@ -567,6 +592,39 @@ class ImageResize
         $this->handleOutput( $cache, 'imagegif' );
     }
         
+    # Output the image to a HTML string (with optional <img /> tag):
+    public function outputHTML( bool $tag = true, string $alt = null, string $title = null, $echo = true )
+    {
+        $fn = $this->getGDFn($this->sourceMime);
+        
+        # We need to create a temp name:
+        $name = tempnam($this->getTmpDir(), 'IR_');
+        
+        $fn( $this->output, $name, $this->getQualityParam($fn) );
+        
+        $base64 = base64_encode( file_get_contents($name) );
+        
+        $src = 'data:'.$this->sourceMime.';base64,'.$base64;
+        
+        if( $tag )
+        {
+            $html = '<img src="'.$src.'"';
+            $html.= (!is_null($alt)) ?   ' alt="'.$alt.'"' : '';
+            $html.= (!is_null($title)) ? ' title="'.$title.'"' : '';
+            $html.= $this->getImgTagAttributes();
+            $html.= ' />';
+            
+            if( $echo )
+            {
+                echo $html;
+            }
+            
+            return $html;
+        }
+        
+        return $src;
+    }
+    
     # Download as original:
     public function download( string $filename = null )
     {
@@ -627,13 +685,15 @@ class ImageResize
         
         if( $cache )
         {
+            $this->targetName = $this->buildCacheName($cache, $this->extension);
+            
             if( $fn != 'imagewbmp' )
             {
-                $fn( $this->output, $this->buildCacheName($cache, $this->extension), $this->getQualityParam($fn) );
+                $fn( $this->output, $this->targetName, $this->getQualityParam($fn) );
             }
             else
             {
-                $fn( $this->output, $this->buildCacheName($cache, $this->extension) );
+                $fn( $this->output, $this->targetName );
             }
         }
         else
@@ -878,5 +938,6 @@ class ImageResize
     {
         imagedestroy($this->input);
         imagedestroy($this->output);
-    }    
+    }
+    
 }
