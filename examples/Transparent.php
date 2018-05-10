@@ -1,0 +1,19 @@
+<?php
+
+# Maintain transparent background:
+
+use \BenMajor\ImageResize;
+
+require 'vendor/autoload.php';
+
+# Generate a new image resize object using a remote image:
+$image = new ImageResize('http://vignette.wikia.nocookie.net/rickandmorty/images/1/19/Pickle_rick_transparent.png/revision/latest/scale-to-width-down/363?cb=20171025014216');
+
+# Turn off transparency:
+$image->setTransparency( true );
+
+# Resize it to 300px wide:
+$image->resizeWidth(300);
+
+# Output it to the browser:
+$image->output();
