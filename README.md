@@ -49,9 +49,161 @@ Please note that some methods only affect certain resize techniques. When this i
 
 #### Resize mehtods:
 
-`resize( $width, $height )`:
-Forces 
+`resize( $width, $height )`:<br />
+Resizes the image to the specified dimensions, **ignoring aspect ratio**.
+*If `$height` is `null`, a square image will be generated, using `$width` for both the width and height of the output.*
 
+`resizeWidth( $width )`:<br />
+Resizes the image to `$width` pixels wide, and calculates the height of the generated image in order to maintain the original aspect ratio.
+
+`resizeHeight( $height )`:<br />
+Resizes the image to `$height` pixels tall, and calculates the width of the generated image in order to maintain the original aspect ratio.
+
+`resizeCrop( $width, $height )`:<br />
+Resizes and automatically crops the image to the specified dimensions. This is particularly useful for generating thumbnails and smaller versions of images where the output size is constrained, but the aspect ratio of the original image should be maintained.<br />
+*If `$height` is `null`, a square image will be generated, using `$width` for both the width and height of the output.*
+
+`contain( $width, $height )`:<br />
+Creates a canvas `$width` &times; `$height` pixels in size, and resizes the image proportionally to ensure the entire image fits onto the canvas and centers the resized image.
+*If `$height` is `null`, a square image will be generated, using `$width` for both the width and height of the output.*
+
+--
+
+#### Output methods:
+
+`output( $cache = false)`:<br />
+Outputs the image using its original mime type.<br />
+*`$cache` can be used as a directory pointer. If `$cache` is specified as a string, the resized image is written to the specified directory contained in `$cache`, rather than output to the buffer.*
+
+`outputJPEG( $cache = false)`:<br />
+Outputs the image as a JPEG.<br />
+*`$cache` can be used as a directory pointer. If `$cache` is specified as a string, the resized image is written to the specified directory contained in `$cache`, rather than output to the buffer.*
+
+`outputPNG( $cache = false )`:<br />
+Outputs the image as a PNG.<br />
+*`$cache` can be used as a directory pointer. If `$cache` is specified as a string, the resized image is written to the specified directory contained in `$cache`, rather than output to the buffer.*
+
+`outputGIF( $cache = false )`:<br />
+Outputs the image as a GIF.<br />
+*`$cache` can be used as a directory pointer. If `$cache` is specified as a string, the resized image is written to the specified directory contained in `$cache`, rather than output to the buffer.*
+
+`outputHTML( bool $tag, string $alt, string $title, bool $echo )`:<br />
+Produces the necessary markup for an `<img />` element, and Base64 encodes the resized image. Accepts the following (optional) parameters:
+
++ `$tag`: include the HTML tag. If `false`, only the Base 64 URL will be returned.<br />Default: `true`.
++ `$alt`: string containing the value for the `alt` attribute of the generated element.<br />Default: `null`.
++ `$title`: string containing the value to be used in the `title` attribute of the generated element.<br />Default: `null`.
++ `$echo`: boolean indicating whether the tag should be echoed (output) as well as returned. Default: `true`.
+
+--
+
+#### Download methods:
+
+`download( $filename = null )`:<br />
+Force the image to be downloaded by the browser (rather than displayed inline) using its original mime type.<br />
+*If `$filename` is null, the original filename will be used, or pass a string to force a different filename in the download dialog. The extension is not required.*
+
+`downloadJPEG( $filename = null )`:<br />
+Force the image to be downloaded by the browser as a JPEG image.<br />
+*If `$filename` is null, the original filename will be used, or pass a string to force a different filename in the download dialog. The extension is not required.*
+
+`downloadPNG( $filename = null )`:<br />
+Force the image to be downloaded by the browser as a PNG image.<br />
+*If `$filename` is null, the original filename will be used, or pass a string to force a different filename in the download dialog. The extension is not required.*
+
+`downloadGIF( $filename = null )`:<br />
+Force the image to be downloaded by the browser as a GIF image.<br />
+*If `$filename` is null, the original filename will be used, or pass a string to force a different filename in the download dialog. The extension is not required.*
+
+#### Editing methods:
+
+`setPadding( $padding )`:<br />
+Set the padding that should be used (in pixels) when using the `contain()` resize method.
+
+`setTransparency( bool $transparency )`:<br />
+Set whether the image resizer should maintain transparency (only valid for transparent PNG or GIF source images).
+
+`disableRename()`:<br />
+Do not automatically rename cached images when saving the resized image to the server.
+
+`enableRename()`:<br />
+Enables automatic renaming of cached images when saving to the server.
+
+`setTmpDir()`:<br />
+Set the temporary directory for working. By default, the temporary directory is the value returned by `sys_get_temp_dir()`.
+
+`setQuality()`:<br />
+Set the output quality of the generated image. The integer should be a value out of 100. The default value is **100**.
+
+`setBackgroundColor( string $bg )`:<br />
+Set the background colour that should be used for `contain()` or other methods. It should be passed as a hex-color string. If transparency is disabled, transparent GIFs or PNGs will have this as the background colour.
+
+`setBorder( $width, $color )`:<br />
+Add a border to the generated image. `$width` should be an integer representing the pixel width of the border. `$color` should be a hex string.
+
+`setBorderWidth( $width )`:<br />
+Sets the width of the border. `$width` should be an integer representing the pixel width of the border.
+
+`setBorderColor( $color )`:<br />
+Sets the color of the generated border. `$color` should be a string containing a hex value (e.g. `#000`).
+
+#### Filter methods:
+
+In addition to resizing images, this library also offers basic editing and filter capabilities for the image. This reference shows all of the currently supported filter methods:
+
+`greyscale()`:<br />
+Convert the image to greyscale (black and white).
+
+`invert()`:<br />
+Invert the colors of the image.
+
+`setBrightness( int $brightness )`:<br />
+Change the brightness of the image (accepts any valid integer value). Uses PHP's `IMG_FILTER_BRIGHTNESS` constant.
+
+`setContrast( int $contrast )`:<br />
+Changes the contrast of the image (accepts any valid integer value). Use's PHP's `IMG_FILTER_CONTRAST` constant.
+
+`setSaturation( float $saturation )`:<br />
+Increase or descrease the image's saturation. Since GD does not offer a built-in method for changing saturation, the only way we can achieve this is to manually set the colour value of each pixel in an image.<br />
+**Note: if you're not caching images, this function may cause images to render slowly, especially larger images.**
+
+`colorize( $color )`:<br />
+Colorize the image using the specified `$color`. `$color` should be a string containing a valid hex color definition.
+
+#### Get methods:
+
+`getBorder()`:<br />
+Get the current settings for the image's border (returns an object containing `width` and `color` properties.
+
+`getBorderWidth()`:<br />
+Gets the current width (in pixels) of the image's border.
+
+`getBorderColor()`:<br />
+Gets the current color (as an array) of the image's border.
+
+`getTmpDir()`:<br />
+Returns a string representing the current working directory.
+
+`getQuality()`:<br />
+Get the current quality setting.
+
+`getTransparency()`:<br />
+Check whether transparency is currently enabled.
+
+`getPadding()`:<br />
+Get the current pixel value of the padding. 
+
+`getOutputWidth()`:<br />
+Get the width of the generated image.<br />
+***Note:** this must be called after a resize function has been called.*
+
+`getOutputHeight()`:<br />
+Get the height of the generated image.<br />
+***Note:** this must be called after a resize function has been called.*
+
+`getImgTagAttributes()`:<br />
+Returns a string containing the size attributes of the resized image to be used for `<img />` tags (e.g. `width="x" height="x"`).
+***Note:** this must be called after a resize function has been called.*
 
 ## 5. Requirements:
 
