@@ -1,5 +1,7 @@
 <?php
 
+# Resize an image to a 200x200 pixel thumbnail (resize and crop).
+
 use \BenMajor\ImageResize;
 
 require 'vendor/autoload.php';
