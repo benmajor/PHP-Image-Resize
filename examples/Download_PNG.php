@@ -2,7 +2,7 @@
 
 # Maintain transparent background:
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
