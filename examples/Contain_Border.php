@@ -2,7 +2,7 @@
 
 # Contain the image on a 500x500 pixel canvas:
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
