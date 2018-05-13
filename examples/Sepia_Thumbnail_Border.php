@@ -2,7 +2,7 @@
 
 # Create a 300x200 sepia thumbnail with a border.
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
