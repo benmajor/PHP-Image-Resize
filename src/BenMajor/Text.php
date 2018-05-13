@@ -48,7 +48,7 @@ class Text
     # Set the text:
     public function setText( $text )
     {
-        $this->text = $text;
+        $this->text = (string) $text;
     }
     
     # Get the text:
@@ -58,7 +58,7 @@ class Text
     }
     
     # Set the font source:
-    public function setFont( $src )
+    public function setFont( string $src )
     {
         $font     = file_get_contents('https://github.com/CartoDB/cartodb/blob/master/app/assets/fonts/helvetica.ttf?raw=true');
         $fontFile = tempnam(sys_get_temp_dir(), 'FONT_');
@@ -86,7 +86,7 @@ class Text
     }
     
     # Set the color:
-    public function setColor( $hex )
+    public function setColor( string $hex )
     {
         $this->color = $this->hex2rgb( $hex );
     }
@@ -98,13 +98,13 @@ class Text
     }
     
     # Set the background color:
-    public function setBackgroundColor( $hex )
+    public function setBackgroundColor( string $hex )
     {
         $this->backgroundColor = $this->hex2rgb( $hex );
     }
     
     # Get the background color:
-    public function getBackgroundColor( $hex )
+    public function getBackgroundColor()
     {
         return $this->backgroundColor;
     }
