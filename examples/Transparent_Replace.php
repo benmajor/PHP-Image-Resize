@@ -2,7 +2,7 @@
 
 # Replace transparent background with a colour:
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
