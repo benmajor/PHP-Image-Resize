@@ -2,7 +2,7 @@
 
 # Resize the image to a 200x200 thumbnail, and convert to greyscale:
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
