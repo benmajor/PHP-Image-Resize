@@ -95,7 +95,8 @@ class Image
             $this->sourceHeight = 0;
             $this->sourceMime   = null;
             $this->filename     = null;
-            $this->image        = null;
+            $this->input        = null;
+            $this->output       = null;
         }
         
         $this->outputWidth  = $this->sourceWidth;
@@ -268,6 +269,12 @@ class Image
     public function addText( Text $text )
     {
         $this->output = $text->addToImage( $this->output );
+    }
+    
+    # Add watermark:
+    public function addWatermark( Watermark $watermark )
+    {
+        $this->output = $watermark->addToImage( $this->output );
     }
     
     # START FILTER FUNCTIONS:
