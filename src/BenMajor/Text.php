@@ -150,6 +150,8 @@ class Text
     {
         if( is_array($position) )
         {
+            $this->position = new \stdClass();
+            
             $this->position->x = $position['x'];
             $this->position->y = $position['y'];
         }
