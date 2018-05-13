@@ -1,7 +1,7 @@
 <?php
 
 # Generate a <div> element using the image's average background color:
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
