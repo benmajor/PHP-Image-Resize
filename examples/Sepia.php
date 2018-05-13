@@ -2,7 +2,7 @@
 
 # Don't resize, but create sepia effect:
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
