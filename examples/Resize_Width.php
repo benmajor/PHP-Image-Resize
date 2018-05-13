@@ -2,7 +2,7 @@
 
 # Resize the image to 300 pixels wide, maintaining the aspect ratio
 
-use \BenMajor\ImageResize;
+use \BenMajor\ImageResize\Image;
 
 require 'vendor/autoload.php';
 
