@@ -2,8 +2,10 @@
 
 ImageResize is a simple PHP class that can be used to resize images on the fly using PHP's native [GD library](http://php.net/manual/en/book.image.php). The library is also able to add watermarks and text overlays to your images automatically.
 
-
 The only dependency for this Class is that the GD library be installed on your server. You must be running **PHP >= 5.6**.
+
+[![Latest Version](https://img.shields.io/packagist/v/benmajor/php-image-resize.svg?style=flat-square)](https://packagist.org/packages/benmajor/php-image-resize)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
 ## Table of Contents:
 
