@@ -1,8 +1,8 @@
 <?php
 
-namespace BenMajor;
+namespace BenMajor\ImageResize;
 
-class ImageResize
+class Image
 {
     private $source;
     private $sourceWidth;
@@ -243,6 +243,31 @@ class ImageResize
     public function getImgTagAttributes()
     {
         return 'width="'.$this->getOutputWidth().'" height="'.$this->getOutputHeight().'"';
+    }
+    
+    # Get the avergae colour of the image:
+    public function getAverageColor()
+    {
+        $sample = imagecreatetruecolor(1, 1);
+        
+        imagecopyresampled($sample, $this->input, 0, 0, 0, 0, 1, 1, $this->sourceWidth, $this->sourceHeight);
+        
+        $rgb   = imagecolorat($sample, 0, 0);
+        $color = imagecolorsforindex($sample, $rgb);
+        
+        $rgb = [
+            'r' => round(round(($color['red'] / 0x33)) * 0x33),
+            'g' => round(round(($color['green'] / 0x33)) * 0x33),
+            'b' => round(round(($color['blue'] / 0x33)) * 0x33)
+        ];
+        
+        return sprintf('#%02X%02X%02X', $rgb['r'], $rgb['g'], $rgb['b']);
+    }
+    
+    # Add text overlay:
+    public function addText( Text $text )
+    {
+        $this->output = $text->addToImage( $this->output );
     }
     
     # START FILTER FUNCTIONS:
@@ -665,7 +690,6 @@ class ImageResize
         $this->outputGIF(false);
     }
     
-    
     # Handle the output:
     private function handleOutput( $cache = false, $fn )
     {
@@ -924,7 +948,7 @@ class ImageResize
         return [ $r, $g, $b ];  
     }  
     
-    # Remove an extension:
+    # Remove an extension:
     private function removeExtension( $filename )
     {
         $parts = explode('.', $filename);
