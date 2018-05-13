@@ -89,7 +89,7 @@ class Watermark
     }
     
     # Get the transparency:
-    public function getOpacity( int $opacity )
+    public function getOpacity()
     {
         return $this->opacity;
     }
