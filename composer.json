@@ -13,7 +13,7 @@
     },
     "autoload": {
         "psr-4": {
-            "BenMajor\\ImageResize\\": "src/"
+            "BenMajor\\ImageResize\\": "src/BenMajor"
         }
     }
 }
