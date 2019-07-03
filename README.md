@@ -44,7 +44,7 @@ To get started, call the constructor, and pass a path to a valid image to it:
 
 	<?php
 	
-	use BenMajor\ImageResize;
+	use BenMajor\ImageResize\Image;
 	
 	$image = new Image('http://example.com/image.jpg');
 
