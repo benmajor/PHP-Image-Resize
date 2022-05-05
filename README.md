@@ -62,7 +62,7 @@ The following is a list of the various methods that may be called on an `ImageRe
 
 Please note that some methods only affect certain resize techniques. When this is the case, a note has been added to the method reference below.
 
-#### Resize mehtods:
+#### Resize methods:
 
 `resize( $width, $height )`:<br />
 Resizes the image to the specified dimensions, **ignoring aspect ratio**.
