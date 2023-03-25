@@ -2,389 +2,487 @@
 
 namespace BenMajor\ImageResize;
 
+use BenMajor\ImageResize\Model\BoundingBox;
+use BenMajor\ImageResize\Model\Font\FontInterface;
+use BenMajor\ImageResize\Model\Colourspace\RGB;
+use BenMajor\ImageResize\Model\Font\HelveticaFont;
+use GdImage;
+use InvalidArgumentException;
+
 class Text
 {
-    private $text;
-    private $color;
-    private $backgroundColor;
-    private $backgroundOpacity;
-    private $rotation;
-    private $padding;
-    private $position;
-    
-    private $font;
-    private $fontSize;
-    
-    private $image;
-    
-    # Allowed alignment properties:
-    protected $allowedAlignment = [ 'left', 'center', 'right' ];
-    
-    # Allowed positions:
-    protected $allowedPositions = [ 't', 'tr', 'r', 'br', 'b', 'bl', 'l', 'tl', 'c' ];
-    
-    function __construct( $text )
+    private string $text;
+    private RGB $color;
+    private RGB $backgroundColor;
+    private int $backgroundOpacity;
+    private int $rotation;
+    private int $padding;
+    private string $position;
+    private string|int $width;
+    private string $textAlign;
+
+    private ?FontInterface $font;
+
+    // Alignment constants:
+    public const ALIGN_LEFT = 'left';
+    public const ALIGN_CENTER = 'center';
+    public const ALIGN_RIGHT = 'right';
+
+    // Position constants:
+    public const POSITION_TOP = 't';
+    public const POSITION_TOP_RIGHT = 'tr';
+    public const POSITION_RIGHT = 'r';
+    public const POSITION_BOTTOM_RIGHT = 'br';
+    public const POSITION_BOTTOM = 'b';
+    public const POSITION_BOTTOM_LEFT = 'bl';
+    public const POSITION_LEFT = 'l';
+    public const POSITION_TOP_LEFT = 'tl';
+    public const POSITION_CENTER = 'c';
+
+    public function __construct(string $text)
     {
-        $this->text              = $text;
-        
-        $font     = file_get_contents('https://github.com/CartoDB/cartodb/blob/master/app/assets/fonts/helvetica.ttf?raw=true');
-        $fontFile = tempnam(sys_get_temp_dir(), 'FONT_');
-        file_put_contents($fontFile, $font);
-        
-        $this->font              = $fontFile;
-        $this->fontSize          = 12;
-        
-        $this->color             = $this->hex2rgb( '#fff' );
-        $this->backgroundColor   = $this->hex2rgb( '#000' );
+        $this->text = $text;
+        $this->font = new HelveticaFont();
+        $this->color = RGB::fromHex('#fff');
+        $this->backgroundColor = RGB::fromHex('#000');
         $this->backgroundOpacity = 0;
-        $this->rotation          = 0;
-        $this->padding           = 0;
-        $this->width             = 'auto';
-        $this->textAlign         = 'left';
-        
-        $this->position          = 'br';
+        $this->rotation = 0;
+        $this->padding = 0;
+        $this->width = 'auto';
+        $this->textAlign = self::ALIGN_LEFT;
+        $this->position = self::POSITION_BOTTOM_RIGHT;
     }
-    
-    # Set the text:
-    public function setText( $text )
+
+    /**
+     * Set the text content
+     *
+     * @param string $text
+     * @return self
+     */
+    public function setText(string $text): self
     {
-        $this->text = (string) $text;
+        $this->text = $text;
+
+        return $this;
     }
-    
-    # Get the text:
-    public function getText()
+
+    /**
+     * Get the text
+     *
+     * @return string
+     */
+    public function getText(): string
     {
         return $this->text;
     }
-    
-    # Set the font source:
-    public function setFont( string $src )
+
+    /**
+     * Set the font to be used
+     *
+     * @param FontInterface $font
+     * @return self
+     */
+    public function setFont(FontInterface $font): self
     {
-        $font     = file_get_contents('https://github.com/CartoDB/cartodb/blob/master/app/assets/fonts/helvetica.ttf?raw=true');
-        $fontFile = tempnam(sys_get_temp_dir(), 'FONT_');
-        file_put_contents($fontFile, $font);
-        
-        $this->font = $fontFile;
+        $this->font = $font;
+
+        return $this;
     }
-    
-    # Get the font name:
-    public function getFont()
+
+    /**
+     * Set the font size
+     *
+     * @param integer $size
+     * @return self
+     */
+    public function setFontSize(int $size): self
+    {
+        $this->getFont()->setSize($size);
+
+        return $this;
+    }
+
+    /**
+     * Get the currently defined font
+     *
+     * @return FontInterface|null
+     */
+    public function getFont(): FontInterface
     {
         return $this->font;
     }
-    
-    # Set the font size:
-    public function setFontSize( int $size = 12 )
+
+    /**
+     * Set the text color
+     *
+     * @param string|RGB $color
+     * @return self
+     */
+    public function setColor(string|RGB $color): self
     {
-        $this->fontSize = $size;
+        $this->color = ($color instanceof RGB)
+            ? $color
+            : RGB::fromHex($color);
+
+        return $this;
     }
-    
-    # Get the font size:
-    public function getFontSize()
-    {
-        return $this->fontSize;
-    }
-    
-    # Set the color:
-    public function setColor( string $hex )
-    {
-        $this->color = $this->hex2rgb( $hex );
-    }
-    
-    # Get the color:
-    public function getColor()
+
+    /**
+     * Get the color
+     *
+     * @return RGB
+     */
+    public function getColor(): RGB
     {
         return $this->color;
     }
-    
-    # Set the background color:
-    public function setBackgroundColor( string $hex )
+
+    /**
+     * Set the background color
+     *
+     * @param string|RGB $color
+     * @return self
+     */
+    public function setBackgroundColor(string|RGB $color): self
     {
-        $this->backgroundColor = $this->hex2rgb( $hex );
+        $this->backgroundColor = ($color instanceof RGB)
+            ? $color
+            : RGB::fromHex($color);
+
+        return $this;
     }
-    
-    # Get the background color:
-    public function getBackgroundColor()
+
+    /**
+     * Get the background color
+     *
+     * @return RGB
+     */
+    public function getBackgroundColor(): RGB
     {
         return $this->backgroundColor;
     }
-    
-    # Set the background opacity:
-    public function setBackgroundOpacity( int $opacity )
+
+    /**
+     * Set the background opacity (%)
+     *
+     * @param integer $opacity
+     * @return self
+     */
+    public function setBackgroundOpacity(int $opacity): self
     {
         $this->backgroundOpacity = $opacity;
+
+        return $this;
     }
-    
-    # Set the angle:
-    public function setRotation( int $angle )
-    {
-        $this->rotation = $angle;
-    }
-    
-    # Get the angle:
-    public function getRotation()
-    {
-        return $this->rotation;
-    }
-    
-    # Get the background opacity:
-    public function getBackgroundOpacity()
+
+    /**
+     * Get the background opacity
+     *
+     * @return integer
+     */
+    public function getBackgroundOpacity(): int
     {
         return $this->backgroundOpacity;
     }
-    
-    # Set the padding:
-    public function setPadding( int $padding = 0 )
+
+    /**
+     * Set the rotation angle
+     *
+     * @param integer $angle
+     * @return self
+     */
+    public function setRotation(int $angle): self
+    {
+        $this->rotation = $angle;
+
+        return $this;
+    }
+
+    /**
+     * Get the rotation angle
+     *
+     * @return integer
+     */
+    public function getRotation(): int
+    {
+        return $this->rotation;
+    }
+
+    /**
+     * Set the padding
+     *
+     * @param integer $padding
+     * @return self
+     */
+    public function setPadding(int $padding): self
     {
         $this->padding = $padding;
+
+        return $this;
     }
-    
-    # Get the padding:
-    public function getPadding()
+
+    /**
+     * Get the padding
+     *
+     * @return integer
+     */
+    public function getPadding(): int
     {
         return $this->padding;
     }
-    
-    # Set the position:
-    public function setPosition( $position )
+
+    /**
+     * Set the image pos
+     *
+     * @param string|array $position
+     * @return self
+     */
+    public function setPosition(string|array $position): self
     {
-        if( is_array($position) )
-        {
-            $this->position = new \stdClass();
-            
-            $this->position->x = $position['x'];
-            $this->position->y = $position['y'];
-        }
-        elseif( is_string($position) )
-        {
-            $this->position = $position;
-        }
-        else
-        {
-            throw new \Exception('Position must be a string containing ('.implode(', ', $this->allowedPositions).') or an array containing X and Y co-ordinates');
-        }
+        $this->position = $position;
+
+        return $this;
     }
-    
-    # Get the position:
-    public function getPosition()
+
+    /**
+     * Get the position
+     *
+     * @return string|array
+     */
+    public function getPosition(): string|array
     {
         return $this->position;
     }
-    
-    # Set the width:
-    public function setWidth( $width )
+
+    /**
+     * Set the width of the bounding box
+     *
+     * @param string|integer $width
+     * @return self
+     */
+    public function setWidth(string|int $width): self
     {
-        if( $width != 'auto' && !is_numeric($width) )
-        {
-            throw new \Exception('Specified width must be either auto, or valid integer.');
+        if ((is_string($width) === true && $width !== 'auto') || is_int($width) === false) {
+            throw new InvalidArgumentException('Specified width must be either "auto", or integer.');
         }
-        
+
         $this->width = $width;
+
+        return $this;
     }
-    
-    # Get the width:
-    public function getWidth()
+
+    /**
+     * Get the width of the bounding box
+     *
+     * @return string|integer
+     */
+    public function getWidth(): string|int
     {
         return $this->width;
     }
-    
-    # Set the text align:
-    public function setTextAlign( string $align = 'center' )
+
+    /**
+     * Set the text alignment
+     *
+     * @param string $align
+     * @return void
+     */
+    public function setTextAlignment(string $align)
     {
-        if( !in_array($align, $this->allowedAlignment) )
-        {
-            throw new \Exception( 'Specified alignment is invalid. You must use one of the following: '.implode(', ', $this->allowedAlignment));
+        $supported = [
+            self::ALIGN_CENTER,
+            self::ALIGN_LEFT,
+            self::ALIGN_RIGHT
+        ];
+
+        if (in_array($align, $supported) === false) {
+            throw new InvalidArgumentException('Specified alignment is invalid');
         }
-        
+
         $this->textAlign = $align;
+
+        return $this;
     }
-    
-    # Get the text align:
-    public function getTextAlign()
+
+    /**
+     * Get the text alignment
+     *
+     * @return string
+     */
+    public function getTextAlignment(): string
     {
         return $this->textAlign;
     }
-    
-    # Add the text to a GD image:
-    public function addToImage( $image )
-    {
-        $this->image = $image;
-        
-        $width  = imagesx( $this->image );
-        $height = imagesy( $this->image );
-        
-        // Only handle if it's set:
-        if( !is_null($this->font) )
-        {
-            $box = $this->getBoundingBoxSize($this->fontSize, $this->rotation, $this->font, $this->text);
-            
-            # How big does the bg need to be?
-            if( $this->getWidth() == 'auto' )
-            {
-                $boxWidth = $box['w'] - 1 + ($this->getPadding() * 2);
-            }
-            else
-            {
-                $boxWidth = min($width, (($width * ($this->getWidth() / 100)) + ($this->getPadding() * 2)));
-            }
-            
-            $boxHeight = ($box['h']) + ($this->padding * 2);
-            
-            
-            # Handle the positioning:
-            if( is_string($this->position) )
-            {
-                switch( $this->position )
-                {
-                    # Top center:
-                    case 't':
-                        $boxY = 0;
-                        $boxX = round( ($width - $boxWidth) / 2 );
-                        break;
-                    
-                    # Top right:
-                    case 'tr':
-                        $boxY = 0;
-                        $boxX = $width - $boxWidth;
-                        break;
-                    
-                    # Right center:
-                    case 'r':
-                        $boxY = round( ($height - $boxHeight) / 2);
-                        $boxX = $width - $boxWidth;
-                        break;
-                    
-                    # Bottom right:
-                    case 'br':
-                    default:
-                        $boxY = $height - $boxHeight;
-                        $boxX = $width - $boxWidth;
-                        break;
-                    
-                    # Bottom center:
-                    case 'b':
-                        $boxY = $height - $boxHeight;
-                        $boxX = round( ($width - $boxWidth) / 2);
-                        break;
-                    
-                    # Bottom left:
-                    case 'bl':
-                        $boxY = $height - $boxHeight;
-                        $boxX = 0;
-                        break;
-                    
-                    # Left center:
-                    case 'l':
-                        $boxY = round( ($height - $boxHeight) / 2 );
-                        $boxX = 0;
-                        break;
-                    
-                    # Top left:
-                    case 'tl':
-                        $boxY = 0;
-                        $boxX = 0;
-                        break;
-                    
-                    # Center:
-                    case 'c':
-                        $boxY = round( ($height - $boxHeight) / 2 );
-                        $boxX = round( ($width - $boxWidth) / 2);
-                        break;
-                }
-            }
-            else
-            {
-                $boxX = $this->position->x;
-                $boxY = $this->position->y;
-            }
-            
-            $boxX2 = $boxX + $boxWidth;
-            $boxY2 = $boxY + $boxHeight;
-            
-            # Handle the alignment:
-            switch( $this->textAlign && $this->width != 'auto' )
-            {
-                case 'left':
-                default:
-                    $textX = ($boxX + $this->padding);
-                    $textY = (($boxY + $box['h'] + $box['y']) + $this->padding);
-                    break;
-                
-                case 'center':
-                    $textX = round( (($boxWidth - $box['w']) - ($this->padding * 2)) / 2 );
-                    $textY = (($boxY + $box['h'] + $box['y']) + $this->padding);
-                    break;
-                
-                case 'right':
-                    $textX = ($boxWidth - $this->padding - $box['w']);
-                    $textY = (($boxY + $box['h'] + $box['y']) + $this->padding);
-                    break;
-            }
-            
-            # Background color:
-            $bg = imagecolorallocatealpha($this->image, $this->backgroundColor['r'], $this->backgroundColor['g'], $this->backgroundColor['b'], abs(127 * (($this->backgroundOpacity / 100) - 1)) );
-            
-            # Generate the background:
-            imagefilledrectangle( $this->image, $boxX, $boxY, $boxX2, $boxY2, $bg );
-            
-            # Foreground color:
-            $color = imagecolorallocate( $this->image, $this->color['r'], $this->color['g'], $this->color['b'] );
-            
-            # Generate the text:
-            imagettftext(
-                $this->image,
-                $this->fontSize,
-                $this->rotation,
-                $textX,
-                $textY,
-                $color,
-                $this->font,
-                $this->text
-            );
-            
-            return $this->image;
-        }
-    }
-    
-    # Calculate the CORRECT bounding box (http://php.net/manual/en/function.imagettfbbox.php#75407):
-    private function getBoundingBoxSize($size, $angle, $fontfile, $text)
-    {
-        $bbox = imagettfbbox($size, $angle, $fontfile, $text);
-        $box  = [ ];
-    
-        # Calculate actual text width
-        $box['w'] = abs($bbox[2] - $bbox[0]);
-        
-        if($bbox[0] < -1)
-        {
-            $bbox['w'] = abs($bbox[2]) + abs($bbox[0]) - 1;
-        }
-    
-        # Calculate actual text height:
-        $box['h'] = abs($bbox[7]) - abs($bbox[1]);
-        
-        if( $bbox[5] < 7 )
-        {
-            $box['h'] = $box['h'] + abs($bbox[5] + $bbox[3]);
-        }
-        
-        $box['y'] = 0 - $bbox[3];
-    
-        return $box;
-    }
-        
-   
-    # Convert hex to RGB:
-    private function hex2rgb( $hex )
-    {
-        $hex = str_replace('#', '', $hex);
-        
-        $hex      = str_replace('#', '', $hex);
-        $length   = strlen($hex);
-        $rgb['r'] = hexdec($length == 6 ? substr($hex, 0, 2) : ($length == 3 ? str_repeat(substr($hex, 0, 1), 2) : 0));
-        $rgb['g'] = hexdec($length == 6 ? substr($hex, 2, 2) : ($length == 3 ? str_repeat(substr($hex, 1, 1), 2) : 0));
-        $rgb['b'] = hexdec($length == 6 ? substr($hex, 4, 2) : ($length == 3 ? str_repeat(substr($hex, 2, 1), 2) : 0));
 
-        return $rgb;
+    /**
+     * Add the text to the specified image.
+     *
+     * @param Image $image
+     * @return Image
+     */
+    public function addToImage(Image $image): Image
+    {
+        $width  = imagesx($image->getOutput());
+        $height = imagesy($image->getOutput());
+
+        $boundingBox = $this->getBoundingBoxSize(
+            $this->getFont(),
+            $this->rotation,
+            $this->text
+        );
+
+        $boxWidth = ($this->getWidth() === 'auto')
+            ? $boundingBox->getWidth() - 1 + ($this->getPadding() * 2)
+            : min($width, (($width * ($this->getWidth() / 100)) + ($this->getPadding() * 2)));
+
+        $boxHeight = $boundingBox->getHeight() + ($this->getPadding() * 2);
+
+        if (is_string($this->getPosition())) {
+            switch ($this->position) {
+                case self::POSITION_TOP:
+                    $boxY = 0;
+                    $boxX = round(($width - $boxWidth) / 2);
+                    break;
+
+                case self::POSITION_TOP_RIGHT:
+                    $boxY = 0;
+                    $boxX = $width - $boxWidth;
+                    break;
+
+                case self::POSITION_RIGHT:
+                    $boxY = round(($height - $boxHeight) / 2);
+                    $boxX = $width - $boxWidth;
+                    break;
+
+                case self::POSITION_BOTTOM_RIGHT:
+                default:
+                    $boxY = $height - $boxHeight;
+                    $boxX = $width - $boxWidth;
+                    break;
+
+                case self::POSITION_BOTTOM:
+                    $boxY = $height - $boxHeight;
+                    $boxX = round(($width - $boxWidth) / 2);
+                    break;
+
+                case self::POSITION_BOTTOM_LEFT:
+                    $boxY = $height - $boxHeight;
+                    $boxX = 0;
+                    break;
+
+                # Left center:
+                case self::POSITION_LEFT:
+                    $boxY = round(($height - $boxHeight) / 2);
+                    $boxX = 0;
+                    break;
+
+                case self::POSITION_TOP_LEFT:
+                    $boxY = 0;
+                    $boxX = 0;
+                    break;
+
+                case self::POSITION_CENTER:
+                    $boxY = round(($height - $boxHeight) / 2);
+                    $boxX = round( ($width - $boxWidth) / 2);
+                    break;
+            }
+        }
+        else {
+            $boxX = $this->getPosition()['x'];
+            $boxY = $this->getPosition()['y'];
+        }
+
+        $boxX2 = $boxX + $boxWidth;
+        $boxY2 = $boxY + $boxHeight;
+
+        // Handle the text alignment:
+        switch ($this->textAlign) {
+            case self::ALIGN_LEFT:
+            default:
+                $textX = ($boxX + $this->getPadding());
+                $textY = (($boxY + $boundingBox->getHeight() + $boundingBox->getYOffset()) + $this->getPadding());
+                break;
+
+            case self::ALIGN_CENTER:
+                $textX = round((($boxWidth - $boundingBox->getWidth()) - ($this->getPadding() * 2)) / 2 );
+                $textY = (($boxY + $boundingBox->getHeight() + $boundingBox->getYOffset()) + $this->getPadding());
+                break;
+
+            case self::ALIGN_RIGHT:
+                $textX = ($boxWidth - $this->getPadding() - $boundingBox->getWidth());
+                $textY = (($boxY + $boundingBox->getHeight() + $boundingBox->getYOffset()) + $this->getPadding());
+                break;
+        }
+
+        // Build the background:
+        if ($this->getBackgroundOpacity() > 0) {
+            imagefilledrectangle(
+                $image->getOutput(),
+                $boxX,
+                $boxY,
+                $boxX2,
+                $boxY2,
+                imagecolorallocatealpha(
+                    $image->getOutput(),
+                    $this->backgroundColor->getRed(),
+                    $this->backgroundColor->getGreen(),
+                    $this->backgroundColor->getBlue(),
+                    abs(127 * (($this->getBackgroundOpacity() / 100) - 1))
+                )
+            );
+        }
+
+        imagettftext(
+            $image->getOutput(),
+            $this->getFont()->getSize(),
+            $this->rotation,
+            $textX,
+            $textY,
+            imagecolorallocate(
+                $image->getOutput(),
+                $this->getColor()->getRed(),
+                $this->getColor()->getGreen(),
+                $this->getColor()->getBlue()
+            ),
+            $this->getFont()->getFile(),
+            $this->text
+        );
+
+        return $image;
+    }
+
+    /**
+     * Calculate the bounding box for the text
+     * http://php.net/manual/en/function.imagettfbbox.php#75407
+     *
+     * @param FontInterface $font
+     * @param integer $angle
+     * @param string $text
+     * @return BoundingBox
+     */
+    private function getBoundingBoxSize(
+        FontInterface $font,
+        int $angle,
+        string $text
+    ): BoundingBox {
+        $boundingBox = imagettfbbox($font->getSize(), $angle, $font->getFile(), $text);
+
+        $width = abs($boundingBox[2] - $boundingBox[0]);
+
+        if ($boundingBox[0] < -1) {
+            $width = abs($boundingBox[2]) + abs($boundingBox[0]) - 1;
+        }
+
+        $height = abs($boundingBox[7]) - abs($boundingBox[1]);
+
+        if ( $boundingBox[5] < 7) {
+            $height += abs($boundingBox[5] + $boundingBox[3]);
+        }
+
+        return new BoundingBox(
+            $width,
+            $height,
+            (0 - $boundingBox[3])
+        );
     }
 }
