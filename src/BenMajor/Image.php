@@ -377,13 +377,31 @@ class Image
      * @param string|null $position
      * @return self
      */
-    public function addText(Text $text, ?string $position = null): self
+    public function addText(Text $text, string|array $position = null): self
     {
         if ($position !== null) {
             $text->setPosition($position);
         }
 
-        $text->addToImage($this->output);
+        $text->addToImage($this);
+
+        return $this;
+    }
+
+    /**
+     * Add a watermark ot th eimage
+     *
+     * @param Watermark $watermark
+     * @param string|null $position
+     * @return self
+     */
+    public function addWatermark(Watermark $watermark, string|array $position = null): self
+    {
+        if ($position !== null) {
+            $watermark->setPosition($position);
+        }
+
+        $watermark->addToImage($this);
 
         return $this;
     }

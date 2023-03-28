@@ -427,7 +427,7 @@ class Text
                     $this->backgroundColor->getRed(),
                     $this->backgroundColor->getGreen(),
                     $this->backgroundColor->getBlue(),
-                    abs(127 * (($this->getBackgroundOpacity() / 100) - 1))
+                    100 - $this->getBackgroundOpacity()
                 )
             );
         }
